@@ -22,14 +22,37 @@ function sendRequest(url) {
       weather.weatherIcon = data.weather[0].id;
       weather.humidity = data.main.humidity;
       weather.wind = data.wind.speed;
-      weather.direction = data.wind.deg;
+      //weather.direction = degreesToDirection(data.wind.deg);
       weather.loc = data.name;
-      weather.temp = data.main.temp;
+      weather.temp = kelvinToCelcius(data.main.temp);
       update(weather);
     }
   };
   xmlhttp.open("GET", url, true);
   xmlhttp.send();
+}
+
+function degreesToDirection(degrees) {
+  var range = 360/16;
+  var low = 360 - range/2;
+  var high = (low + range) % 360;
+  var angles = ['N', 'NNE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  for(i in angles) {
+
+    if (degrees >= low && degrees < high)
+      return angles[i];
+
+    low = (low + range) % 360;
+    high = (high + range) % 360;
+  }
+  return "N";
+}
+function kelvinToCelcius(kelvinTemp) {
+  return Math.round(kelvinTemp - 273.15);
+}
+
+function kelvinToFarenheit(kelvinTemp) {
+  return Math.round(kelvinTemp * (9/5) -459.67)
 }
 
 function update(weather) {
@@ -51,7 +74,7 @@ window.onload = function () {
   wind = document.getElementById('wind');
   direction = document.getElementById('direction');
 
-  updateByPostcode(87110);
+  updateByPostcode("0100/");
 
 
 }
