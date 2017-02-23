@@ -13,6 +13,14 @@ function updateByPostcode(postcode) {
   sendRequest(url);
 }
 
+function updateByGeoLocation(lat, lon) {
+  var url = "http://api.openweathermap.org/data/2.5/weather?" +
+  "lat=" + lat +
+  "&lon=" + lon +
+  "&APPID=" + APPID;
+  sendRequest(url);
+}
+
 function sendRequest(url) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function () {
@@ -22,7 +30,7 @@ function sendRequest(url) {
       weather.weatherIcon = data.weather[0].id;
       weather.humidity = data.main.humidity;
       weather.wind = data.wind.speed;
-      //weather.direction = degreesToDirection(data.wind.deg);
+      weather.direction = degreesToDirection(data.wind.deg);
       weather.loc = data.name;
       weather.temp = kelvinToCelcius(data.main.temp);
       update(weather);
@@ -47,6 +55,7 @@ function degreesToDirection(degrees) {
   }
   return "N";
 }
+
 function kelvinToCelcius(kelvinTemp) {
   return Math.round(kelvinTemp - 273.15);
 }
@@ -74,7 +83,19 @@ window.onload = function () {
   wind = document.getElementById('wind');
   direction = document.getElementById('direction');
 
-  updateByPostcode("0100/");
+  // if browser doesn't support location
+  if (navigator.geolocation)
 
+    navigator.geolocation.getCurrentPosition(showPosition);
+  else {
+      var postcode = window.prompt('Could not discover your location.  What is your zip/postcode');
+      updateByPostcode(postcode)
+  }
+}
 
+function showPosition(position) {
+  console.log(position.coords.latitude);
+  console.log(position.coords.longitude);
+  console.log(position.coords.accuracy);
+  updateByGeoLocation(position.coords.latitude, position.coords.longitude);
 }
